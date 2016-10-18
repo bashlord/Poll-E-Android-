@@ -29,6 +29,23 @@ public class LocalStore {
         userLocalDatabaseEditor.commit();
     }
 
+    public void setUserInfo(double p1, int p2, int p3, double p4, int p5, int p6, int p7, int p8, int p9){
+        SharedPreferences.Editor userLocalDatabaseEditor = userLocalDatabase.edit();
+
+        userLocalDatabaseEditor.putFloat("w",(float) p1);
+        userLocalDatabaseEditor.putFloat("h", (float)p4);
+        userLocalDatabaseEditor.putInt("age",p2);
+        userLocalDatabaseEditor.putInt("hair",p3);
+        userLocalDatabaseEditor.putInt("gen",p5);
+        userLocalDatabaseEditor.putInt("eth",p6);
+        userLocalDatabaseEditor.putInt("eye",p7);
+        userLocalDatabaseEditor.putInt("r",p8);
+        userLocalDatabaseEditor.putInt("rel",p9);
+
+        userLocalDatabaseEditor.commit();
+
+    }
+
     public void clearUserData() {
         SharedPreferences.Editor userLocalDatabaseEditor = userLocalDatabase.edit();
         userLocalDatabaseEditor.clear();

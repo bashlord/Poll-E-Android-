@@ -7,6 +7,11 @@ import android.content.Intent;
 import android.support.v7.app.AlertDialog;
 import android.util.Log;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.Date;
+
 import org.json.*;
 import com.loopj.android.http.*;
 
@@ -25,7 +30,7 @@ public class RestClientRequest {
         params.put("p", password);
         final LocalStore localStore = new LocalStore(activity);
         final int flag = -1;
-        RestClient.post("login.php", params, new JsonHttpResponseHandler(){
+        RestClient.post(RestConstants.log, params, new JsonHttpResponseHandler(){
             @Override
             public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
                 // If the response is JSONObject instead of expected JSONArray
@@ -66,20 +71,74 @@ public class RestClientRequest {
             }
 
             @Override
-            public void onSuccess(int statusCode, Header[] headers, JSONArray timeline) {
-                // Pull out the first event on the public timeline
+            public void onFailure(int statusCode, cz.msebera.android.httpclient.Header[] headers, java.lang.String responseString, java.lang.Throwable throwable){
+                failedConnectionAlert(activity);
+            }
+
+        });
+    }
+
+    public void OnSetupRequest(int uid, final Activity activity) throws JSONException{
+        RequestParams params = new RequestParams();
+        params.put("id", uid);
+
+        RestClient.post(RestConstants.onlog, params, new JsonHttpResponseHandler(){
+            @Override
+            public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
+                // If the response is JSONObject instead of expected JSONArray
                 if(statusCode >= 200 && statusCode < 300){
-                    JSONObject firstEvent = null;
+                    JSONArray qs, ans;
+                    SimpleDateFormat simpleDateFormat;
+                    Calendar calander;
+
                     try {
-                        firstEvent = (JSONObject) timeline.get(0);
-                        String tweetText = firstEvent.getString("text");
-                        // Do something with the response
-                        System.out.println(tweetText);
-                    }catch (JSONException e) {
+                        Log.d("JJK", response.toString());
+
+                        calander = Calendar.getInstance();
+                        simpleDateFormat = new SimpleDateFormat("yyyy-MM-DD HH:mm:ss");
+
+
+
+                        qs = response.getJSONArray("qs");
+                        ans = response.getJSONArray("ans");
+
+                        int anscount = 0;
+                        int p = -1;
+                        for(int i = 0; i < qs.length(); i++){
+                            int qid = qs.getJSONObject(i).getInt("id");
+                            String q = qs.getJSONObject(i).getString("que");
+                            Date qt = simpleDateFormat.parse(qs.getJSONObject(i).getString("t"));
+
+                            if(anscount < ans.length()){
+                                p = ans.getJSONObject(anscount).getInt("qid");
+                            }
+
+                            Poll tpoll = new Poll(q,qid, qt);
+                            if(qid == p){
+                                tpoll.resp = ans.getJSONObject(anscount).getInt("r");
+                                tpoll.rtime = simpleDateFormat.parse(ans.getJSONObject(anscount).getString("t"));
+
+                                ((AppDelegate) activity.getApplication()).answered.add(i);
+                                anscount++;
+                            }else{
+                                ((AppDelegate) activity.getApplication()).unanswered.add(i);
+                            }
+
+                            ((AppDelegate) activity.getApplication()).Q.put(i, tpoll);
+
+                        }
+
+
+                    } catch (JSONException e) {
                         e.printStackTrace();
+                        failedConnectionAlert(activity);
+                    } catch (ParseException e) {
+                        e.printStackTrace();
+                        failedConnectionAlert(activity);
                     }
+
                 }else{
-                    //status code is bad, show error
+                    failedConnectionAlert(activity);
                 }
             }
 
@@ -88,11 +147,8 @@ public class RestClientRequest {
                 failedConnectionAlert(activity);
             }
 
-
-
         });
     }
-
 
     public void failedConnectionAlert(Context context){
         AlertDialog.Builder builder1 = new AlertDialog.Builder(context);

@@ -1,5 +1,7 @@
 package com.jjkbashlord.poll_e;
 
+import android.content.Context;
+
 import com.loopj.android.http.*;
 
 /**
@@ -7,7 +9,7 @@ import com.loopj.android.http.*;
  */
 
 public class RestClient {
-    private static final String BASE_URL = "http://jjkbashlord.com/poll";
+
 
     private static AsyncHttpClient client = new AsyncHttpClient();
 
@@ -20,6 +22,6 @@ public class RestClient {
     }
 
     private static String getAbsoluteUrl(String relativeUrl) {
-        return BASE_URL + relativeUrl;
+        return RestConstants.BASE_URL + relativeUrl;
     }
 }

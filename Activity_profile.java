@@ -14,12 +14,16 @@ import android.widget.TextView;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import org.json.*;
+import com.loopj.android.http.*;
 
+import cz.msebera.android.httpclient.Header;
 /**
  * Created by JJK on 10/18/16.
  */
 
 public class Activity_profile extends AppCompatActivity implements View.OnTouchListener {
+    LocalStore localStore;
     ListView lv_gender, lv_ages, lv_eth, lv_relstat, lv_belief, lv_eyec, lv_hairc;
     TextView tv_heightval, tv_weightval;
     SeekBar sb_weight, sb_height;
@@ -42,7 +46,7 @@ public class Activity_profile extends AppCompatActivity implements View.OnTouchL
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_profile);
-
+        localStore = new LocalStore(this);
         lv_gender = (ListView) findViewById(R.id.lv_gender);
         lv_ages = (ListView) findViewById(R.id.lv_ages);
         lv_eth = (ListView) findViewById(R.id.lv_eth);
@@ -90,8 +94,48 @@ public class Activity_profile extends AppCompatActivity implements View.OnTouchL
     @Override
     public void onStart(){
         super.onStart();
+        ArrayList info = localStore.getUserInfo();
+        /*
+        info.add(userLocalDatabase.getInt("gen",-1));
+        info.add(userLocalDatabase.getInt("age",-1));
+        info.add(userLocalDatabase.getInt("eth",-1));
+        info.add(userLocalDatabase.getInt("r",-1));
+        info.add(userLocalDatabase.getInt("rel",-1));
+        info.add(userLocalDatabase.getFloat("w",-1));
+        info.add(userLocalDatabase.getFloat("h",-1));
+        info.add(userLocalDatabase.getInt("eye",-1));
+        info.add(userLocalDatabase.getInt("hair",-1));
+        */
+        if((int)info.get(0) != -1){
+            lv_gender.setSelection((int)info.get(0));
+        }
+        if((int)info.get(1) != -1){
+            lv_ages.setSelection((int)info.get(1));
+        }
+        if((int)info.get(2) != -1){
+            lv_eth.setSelection((int)info.get(2));
+        }
+        if((int)info.get(3) != -1){
+            lv_relstat.setSelection((int)info.get(3));
+        }
+        if((int)info.get(4) != -1){
+            lv_belief.setSelection((int)info.get(4));
+        }
+        if((float)info.get(5) != -1){
+            Float v = (100*((float)info.get(5)/108));
+            sb_height.setProgress(v.intValue());
+        }
+        if((float)info.get(6) != -1){
+            Float v = 100*((float)info.get(6)/300);
+            sb_weight.setProgress( v.intValue());
+        }
+        if((int)info.get(7) != -1){
+            lv_eyec.setSelection((int)info.get(7));
+        }
+        if((int)info.get(8) != -1){
+            lv_hairc.setSelection((int)info.get(8));
+        }
 
-        
     }
 
 
@@ -120,5 +164,62 @@ public class Activity_profile extends AppCompatActivity implements View.OnTouchL
             return false;
         }
         return false;
+    }
+
+
+    @Override
+    public void onBackPressed(){
+        super.onBackPressed();
+        ArrayList info = localStore.getUserInfo();
+        RequestParams params = new RequestParams();
+        params.put("id", localStore.getLoggedInUser());
+        if((int)info.get(0) != lv_gender.getSelectedItemPosition()){
+            params.put("p5",lv_gender.getSelectedItemPosition());
+            localStore.setInt("gen", lv_gender.getSelectedItemPosition());
+        }
+        if((int)info.get(1) != lv_ages.getSelectedItemPosition()){
+            params.put("p2",lv_ages.getSelectedItemPosition());
+            localStore.setInt("age", lv_ages.getSelectedItemPosition());
+        }
+        if((int)info.get(2) != lv_eth.getSelectedItemPosition()){
+            params.put("p6",lv_eth.getSelectedItemPosition());
+            localStore.setInt("eth", lv_eth.getSelectedItemPosition());
+        }
+        if((int)info.get(3) != lv_relstat.getSelectedItemPosition()){
+            params.put("p8",lv_relstat.getSelectedItemPosition());
+            localStore.setInt("r", lv_relstat.getSelectedItemPosition());
+        }
+        if((int)info.get(4) !=  lv_belief.getSelectedItemPosition()){
+            params.put("p9",lv_belief.getSelectedItemPosition());
+            localStore.setInt("rel", lv_belief.getSelectedItemPosition());
+        }
+
+        Float h = new Float((sb_height.getProgress()*108)/100);
+        if((float)info.get(5) != h){
+            params.put("p4",h);
+            localStore.setFloat("h", h);
+
+        }
+
+        Float w = new Float((sb_weight.getProgress()*300)/100);
+        if((float)info.get(6) != w){
+            params.put("p1",w);
+            localStore.setFloat("w", w);
+        }
+        if((int)info.get(7) != lv_eyec.getSelectedItemPosition()){
+            params.put("p7",lv_eyec.getSelectedItemPosition());
+            localStore.setInt("eye", lv_eyec.getSelectedItemPosition());
+        }
+        if((int)info.get(8) != lv_hairc.getSelectedItemPosition()){
+            params.put("p3",lv_hairc.getSelectedItemPosition());
+            localStore.setInt("hair", lv_hairc.getSelectedItemPosition());
+        }
+
+        RestClientRequest req = new RestClientRequest();
+        try {
+            req.OnUpdateBinfo(params);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
     }
 }

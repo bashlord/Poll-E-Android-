@@ -150,6 +150,10 @@ public class RestClientRequest {
         });
     }
 
+    public void OnUpdateBinfo(RequestParams params) throws JSONException{
+
+    }
+
     public void failedConnectionAlert(Context context){
         AlertDialog.Builder builder1 = new AlertDialog.Builder(context);
         builder1.setMessage("Connection Error, Please try again.");

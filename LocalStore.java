@@ -7,6 +7,8 @@ package com.jjkbashlord.poll_e;
 import android.content.Context;
 import android.content.SharedPreferences;
 
+import java.util.ArrayList;
+
 public class LocalStore {
 
     public static final String SP_NAME = "userLocal";
@@ -41,9 +43,37 @@ public class LocalStore {
         userLocalDatabaseEditor.putInt("eye",p7);
         userLocalDatabaseEditor.putInt("r",p8);
         userLocalDatabaseEditor.putInt("rel",p9);
-
         userLocalDatabaseEditor.commit();
 
+    }
+
+    public ArrayList getUserInfo(){
+        ArrayList info = new ArrayList();
+
+        info.add(userLocalDatabase.getInt("gen",-1));
+        info.add(userLocalDatabase.getInt("age",-1));
+        info.add(userLocalDatabase.getInt("eth",-1));
+        info.add(userLocalDatabase.getInt("r",-1));
+        info.add(userLocalDatabase.getInt("rel",-1));
+        info.add(userLocalDatabase.getFloat("h",-1));
+        info.add(userLocalDatabase.getFloat("w",-1));
+        info.add(userLocalDatabase.getInt("eye",-1));
+        info.add(userLocalDatabase.getInt("hair",-1));
+
+
+        return info;
+    }
+
+    public void setInt(String str, int val){
+        SharedPreferences.Editor userLocalDatabaseEditor = userLocalDatabase.edit();
+       userLocalDatabaseEditor.putInt(str, val);
+        userLocalDatabaseEditor.commit();
+    }
+
+    public void setFloat(String str, float val){
+        SharedPreferences.Editor userLocalDatabaseEditor = userLocalDatabase.edit();
+        userLocalDatabaseEditor.putFloat(str, val);
+        userLocalDatabaseEditor.commit();
     }
 
     public void clearUserData() {

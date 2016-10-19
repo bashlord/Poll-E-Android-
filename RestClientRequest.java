@@ -6,6 +6,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.support.v7.app.AlertDialog;
 import android.util.Log;
+import android.widget.Toast;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -125,10 +126,7 @@ public class RestClientRequest {
                             }
 
                             ((AppDelegate) activity.getApplication()).Q.put(i, tpoll);
-
                         }
-
-
                     } catch (JSONException e) {
                         e.printStackTrace();
                         failedConnectionAlert(activity);
@@ -152,6 +150,38 @@ public class RestClientRequest {
 
     public void OnUpdateBinfo(RequestParams params) throws JSONException{
 
+    }
+
+    public void OnSuggest(String p, int i, final Activity activity){
+        RequestParams params = new RequestParams();
+        params.put("p", p);
+        params.put("i", i);
+        RestClient.post(RestConstants.setpoll, params, new JsonHttpResponseHandler(){
+            public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
+                int resp = -1;
+                // If the response is JSONObject instead of expected JSONArray
+                if(statusCode >= 200 && statusCode < 300){
+                    try {
+                        resp = response.getInt("fin");
+                        successConnectionAlert(0, activity);
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                        failedConnectionAlert(activity);
+                    }
+
+                }else{
+                    failedConnectionAlert(activity);
+                }
+            }
+
+        });
+
+
+    }
+
+    public void successConnectionAlert(int flag, Activity activity){
+        if(flag == 0)
+            Toast.makeText(activity, "Suggestion for poll posted!", Toast.LENGTH_SHORT).show();
     }
 
     public void failedConnectionAlert(Context context){

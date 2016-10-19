@@ -5,17 +5,30 @@ import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
+import android.widget.Button;
 
-public class Activity_root extends AppCompatActivity {
+import org.json.JSONException;
+
+public class Activity_root extends AppCompatActivity implements View.OnClickListener {
     LocalStore localStore;
-
+    RestClientRequest req;
+    Button bprofile,bnext,bprev, bsetting;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_root);
-        localStore = new LocalStore(this);
 
+        bsetting = (Button) findViewById(R.id.bsetting);
+        bnext = (Button) findViewById(R.id.bnext);
+        bprev = (Button)findViewById(R.id.bprev);
+
+        bprofile = (Button) findViewById(R.id.bProfile);
+        bprofile.setOnClickListener(this);
+        bsetting.setOnClickListener(this);
+        localStore = new LocalStore(this);
+        req = new RestClientRequest();
         if(localStore.getLoggedInUser() < 0){
             Log.d("JJK", "getLoggedIn id: "+Integer.toString(localStore.getLoggedInUser()));
             startActivity(new Intent(Activity_root.this, Activity_login.class));
@@ -23,8 +36,30 @@ public class Activity_root extends AppCompatActivity {
 
     }
 
+    @Override
+    protected void onStart(){
+        super.onStart();
+        if(((AppDelegate) getApplication()).Q.size() == 0){
+            try {
+                req.OnSetupRequest( localStore.getLoggedInUser(), Activity_root.this);
+                Log.d("JJK","Counts of Q/unanswered/answerd: " + Integer.toString(((AppDelegate) getApplication()).Q.size())+
+                        "/"+Integer.toString(((AppDelegate) getApplication()).unanswered.size())+"/"+
+                        Integer.toString(((AppDelegate) getApplication()).answered.size()) );
+            } catch (JSONException e) {
+                e.printStackTrace();
+                failedConnectionAlert();
+            }
+        }
+    }
 
+    @Override
+    protected void onResume() {
+        super.onResume();
 
+        if(localStore.getLoggedInUser() == -1){
+            startActivity(new Intent(Activity_root.this, Activity_login.class));
+        }
+    }
 
     public void failedConnectionAlert(){
         AlertDialog.Builder builder1 = new AlertDialog.Builder(this);
@@ -33,5 +68,22 @@ public class Activity_root extends AppCompatActivity {
         AlertDialog alert11 = builder1.create();
         alert11.show();
 
+    }
+
+    @Override
+    public void onClick(View v) {
+        if(v == bprofile){
+            /*
+            Log.d("JJK","wutface");
+            Log.d("JJK","Counts of Q/unanswered/answerd: " + Integer.toString(((AppDelegate) getApplication()).Q.size())+
+                    "/"+Integer.toString(((AppDelegate) getApplication()).unanswered.size())+"/"+
+                    Integer.toString(((AppDelegate) getApplication()).answered.size()) );
+            */
+
+            startActivity(new Intent(Activity_root.this, Activity_profile.class));
+
+        }else if(v == bsetting){
+            startActivity(new Intent(Activity_root.this, Activity_setting.class));
+        }
     }
 }

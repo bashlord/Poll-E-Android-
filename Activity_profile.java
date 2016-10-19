@@ -169,7 +169,7 @@ public class Activity_profile extends AppCompatActivity implements View.OnTouchL
 
     @Override
     public void onBackPressed(){
-        super.onBackPressed();
+
         ArrayList info = localStore.getUserInfo();
         RequestParams params = new RequestParams();
         params.put("id", localStore.getLoggedInUser());
@@ -221,5 +221,7 @@ public class Activity_profile extends AppCompatActivity implements View.OnTouchL
         } catch (JSONException e) {
             e.printStackTrace();
         }
+
+        super.onBackPressed();
     }
 }

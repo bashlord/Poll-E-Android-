@@ -1,12 +1,16 @@
 package com.jjkbashlord.poll_e;
 
 import android.content.Intent;
+import android.support.v4.view.ViewPager;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.widget.Button;
+import android.widget.ViewAnimator;
 
 import org.json.JSONException;
 
@@ -14,15 +18,28 @@ public class Activity_root extends AppCompatActivity implements View.OnClickList
     LocalStore localStore;
     RestClientRequest req;
     Button bprofile,bnext,bprev, bsetting;
+    ViewAnimator viewAnimator;
+    ViewPager mViewPager;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_root);
 
+        mViewPager = new ViewPager(this);
+        mViewPager.setId(R.id.vp_pager);
         bsetting = (Button) findViewById(R.id.bsetting);
         bnext = (Button) findViewById(R.id.bnext);
         bprev = (Button)findViewById(R.id.bprev);
+
+        //viewAnimator = (ViewAnimator) findViewById(R.id.va_polls);
+        final Animation inAnim = AnimationUtils.loadAnimation(this,android.R.anim.slide_in_left);
+        final Animation outAnim = AnimationUtils.loadAnimation(this,android.R.anim.slide_out_right);
+
+        viewAnimator.setInAnimation(inAnim);
+        viewAnimator.setOutAnimation(outAnim);
+
+
 
         bprofile = (Button) findViewById(R.id.bProfile);
         bprofile.setOnClickListener(this);

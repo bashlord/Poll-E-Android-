@@ -15,7 +15,7 @@ import java.util.Map;
 
 public class AppDelegate extends Application {
     LocalStore localStore;
-    public Map<Integer, Poll> Q = new HashMap<Integer, Poll>();;
+    public Map<Integer, Poll> Q = new HashMap<Integer, Poll>();
     public ArrayList answered = new ArrayList();
     public ArrayList unanswered = new ArrayList();
 
@@ -34,5 +34,12 @@ public class AppDelegate extends Application {
         this.answered.clear();
         this.unanswered.clear();
     }
+
+    public void unansweredToAnswered(int unansweredid){
+        int index = java.util.Collections.binarySearch(unanswered, unansweredid);
+        answered.add(unanswered.get(index));
+        unanswered.remove(index);
+    }
+
 
 }

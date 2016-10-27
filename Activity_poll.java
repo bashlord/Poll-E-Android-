@@ -25,10 +25,13 @@ public class Activity_poll extends Fragment implements FragmentLifeCycle {
     Poll poll;
     int id;
     RelativeLayout rl_poll;
+    RestClientRequest req;
+    LocalStore localStore;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
 
     }
 
@@ -36,6 +39,8 @@ public class Activity_poll extends Fragment implements FragmentLifeCycle {
     public void onStart() {
         super.onStart();
         displayUserDetails();
+        req = new RestClientRequest();
+        localStore = new LocalStore(getActivity());
     }
 
     @Override
@@ -46,27 +51,35 @@ public class Activity_poll extends Fragment implements FragmentLifeCycle {
         tv_poll = (TextView) view.findViewById(R.id.tv_poll);
         byes = (Button) view.findViewById(R.id.byes);
         bno = (Button) view.findViewById(R.id.bno);
-
         byes.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
+                req.OnPollResp( localStore.getLoggedInUser(), poll.id, 1, getActivity());
+                if(poll.resp == -1){
+                    ((AppDelegate) getActivity().getApplication()).unansweredToAnswered(poll.id);
+                    rl_poll.setBackgroundColor(getResources().getColor(R.color.answeredgrey));
+                }
+                poll.resp = 1;
+                ((AppDelegate) getActivity().getApplication()).Q.put(poll.id, poll);
             }
         });
 
         bno.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
+                req.OnPollResp( localStore.getLoggedInUser(), poll.id, 0, getActivity());
+                if(poll.resp == -1){
+                    ((AppDelegate) getActivity().getApplication()).unansweredToAnswered(poll.id);
+                    rl_poll.setBackgroundColor(getResources().getColor(R.color.answeredgrey));
+                }
+                poll.resp = 0;
+                ((AppDelegate) getActivity().getApplication()).Q.put(poll.id, poll);
             }
         });
-
-
         return view;
     }
 
     private void displayUserDetails() {
-
         this.tv_poll.setText(poll.q);
         if(poll.resp != -1){
             rl_poll.setBackgroundColor(getResources().getColor(R.color.answeredgrey));

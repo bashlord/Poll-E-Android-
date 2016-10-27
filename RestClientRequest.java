@@ -74,6 +74,8 @@ public class RestClientRequest {
             @Override
             public void onFailure(int statusCode, cz.msebera.android.httpclient.Header[] headers, java.lang.String responseString, java.lang.Throwable throwable){
                 failedConnectionAlert(activity);
+                Log.d("JJK", "LoginPostReq RESTClient FAILED Attempt:");
+                Log.d("JJK", "Code: " + Integer.toString(statusCode) + "\n Response: " + responseString);
             }
 
         });
@@ -127,6 +129,22 @@ public class RestClientRequest {
 
                             ((AppDelegate) activity.getApplication()).Q.put(i, tpoll);
                         }
+
+                        /*
+                        * adapter = new ViewPagerAdapter(getSupportFragmentManager(), ((AppDelegate) getApplication()).answered, ((AppDelegate) getApplication()).unanswered, ((AppDelegate) getApplication()).Q.values());
+                mViewPager.setOffscreenPageLimit(2);
+                mViewPager.setAdapter(adapter);
+                        * */
+                        ((Activity_root) activity).adapter.qs.clear();
+                        ((Activity_root) activity).adapter.answered.clear();
+                        ((Activity_root) activity).adapter.unanswered.clear();
+
+                        ((Activity_root) activity).adapter.qs.addAll( ((AppDelegate) activity.getApplication()).Q.values() );
+                        ((Activity_root) activity).adapter.answered.addAll(( (AppDelegate) activity.getApplication()).answered);
+                        ((Activity_root) activity).adapter.unanswered.addAll(( (AppDelegate) activity.getApplication()).unanswered);
+
+                        ((Activity_root) activity).adapter.refresh();
+                        ((Activity_root) activity).adapter.notifyDataSetChanged();
                     } catch (JSONException e) {
                         e.printStackTrace();
                         failedConnectionAlert(activity);
@@ -143,6 +161,8 @@ public class RestClientRequest {
             @Override
             public void onFailure(int statusCode, cz.msebera.android.httpclient.Header[] headers, java.lang.String responseString, java.lang.Throwable throwable){
                 failedConnectionAlert(activity);
+                Log.d("JJK", "onSetupReq RESTClient FAILED Attempt:");
+                Log.d("JJK", "Code: " + Integer.toString(statusCode) + "\n Response: " + responseString);
             }
 
         });
@@ -157,6 +177,39 @@ public class RestClientRequest {
         params.put("p", p);
         params.put("i", i);
         RestClient.post(RestConstants.setpoll, params, new JsonHttpResponseHandler(){
+            @Override
+            public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
+                int resp = -1;
+                // If the response is JSONObject instead of expected JSONArray
+                if(statusCode >= 200 && statusCode < 300){
+                    try {
+                        resp = response.getInt("fin");
+                        successConnectionAlert(0, activity);
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                        failedConnectionAlert(activity);
+                    }
+                }else{
+                    failedConnectionAlert(activity);
+                }
+            }
+
+            @Override
+            public void onFailure(int statusCode, cz.msebera.android.httpclient.Header[] headers, java.lang.String responseString, java.lang.Throwable throwable){
+                failedConnectionAlert(activity);
+                Log.d("JJK", "onSuggest RESTClient FAILED Attempt:");
+                Log.d("JJK", "Code: " + Integer.toString(statusCode) + "\n Response: " + responseString);
+            }
+        });
+    }
+
+    public void OnPollResp(int uid, int qid, int r, final Activity activity){
+        RequestParams params = new RequestParams();
+        params.put("u", uid);
+        params.put("q", qid);
+        params.put("r", r);
+        RestClient.post(RestConstants.updatepoll, params, new JsonHttpResponseHandler(){
+            @Override
             public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
                 int resp = -1;
                 // If the response is JSONObject instead of expected JSONArray
@@ -174,9 +227,13 @@ public class RestClientRequest {
                 }
             }
 
+            @Override
+            public void onFailure(int statusCode, cz.msebera.android.httpclient.Header[] headers, java.lang.String responseString, java.lang.Throwable throwable){
+                failedConnectionAlert(activity);
+                Log.d("JJK", "onSuggest RESTClient FAILED Attempt:");
+                Log.d("JJK", "Code: " + Integer.toString(statusCode) + "\n Response: " + responseString);
+            }
         });
-
-
     }
 
     public void successConnectionAlert(int flag, Activity activity){

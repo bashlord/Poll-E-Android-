@@ -121,25 +121,24 @@ public class RestClientRequest {
                                 tpoll.resp = ans.getJSONObject(anscount).getInt("r");
                                 tpoll.rtime = simpleDateFormat.parse(ans.getJSONObject(anscount).getString("t"));
 
-                                ((AppDelegate) activity.getApplication()).answered.add(i);
+                                ((AppDelegate) activity.getApplication()).answered.add(qid);
                                 anscount++;
                             }else{
-                                ((AppDelegate) activity.getApplication()).unanswered.add(i);
+                                ((AppDelegate) activity.getApplication()).unanswered.add(qid);
                             }
 
                             ((AppDelegate) activity.getApplication()).Q.put(i, tpoll);
                         }
 
-                        /*
-                        * adapter = new ViewPagerAdapter(getSupportFragmentManager(), ((AppDelegate) getApplication()).answered, ((AppDelegate) getApplication()).unanswered, ((AppDelegate) getApplication()).Q.values());
-                mViewPager.setOffscreenPageLimit(2);
-                mViewPager.setAdapter(adapter);
-                        * */
+                        Log.d("JJK","Counts of Q/unanswered/answerd: " + Integer.toString(((AppDelegate) activity.getApplication()).Q.size())+
+                                "/"+Integer.toString(((AppDelegate) activity.getApplication()).unanswered.size())+"/"+
+                                Integer.toString(((AppDelegate) activity.getApplication()).answered.size()));
+                         ((Activity_root) activity).adapter.qs.clear();
                         ((Activity_root) activity).adapter.qs.clear();
                         ((Activity_root) activity).adapter.answered.clear();
                         ((Activity_root) activity).adapter.unanswered.clear();
 
-                        ((Activity_root) activity).adapter.qs.addAll( ((AppDelegate) activity.getApplication()).Q.values() );
+                        ((Activity_root) activity).adapter.qs.putAll(((AppDelegate) activity.getApplication()).Q );
                         ((Activity_root) activity).adapter.answered.addAll(( (AppDelegate) activity.getApplication()).answered);
                         ((Activity_root) activity).adapter.unanswered.addAll(( (AppDelegate) activity.getApplication()).unanswered);
 

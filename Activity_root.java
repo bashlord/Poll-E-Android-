@@ -10,11 +10,15 @@ import android.view.View;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.Button;
+import android.widget.RadioButton;
+import android.widget.RadioGroup;
 import android.widget.ViewAnimator;
 
 import org.json.JSONException;
 
-public class Activity_root extends AppCompatActivity implements View.OnClickListener {
+import info.hoang8f.android.segmented.SegmentedGroup;
+
+public class Activity_root extends AppCompatActivity implements View.OnClickListener, RadioGroup.OnCheckedChangeListener {
     LocalStore localStore;
     RestClientRequest req;
     Button bprofile,bnext,bprev, bsetting;
@@ -26,6 +30,8 @@ public class Activity_root extends AppCompatActivity implements View.OnClickList
     int curr_una = 0;
     int curr_a = 0;
     int flag = 0;
+    SegmentedGroup segmentedGroup;
+    RadioButton rb_all,rb_una,rb_a;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -39,6 +45,10 @@ public class Activity_root extends AppCompatActivity implements View.OnClickList
         bsetting = (Button) findViewById(R.id.bsetting);
         bnext = (Button) findViewById(R.id.bnext);
         bprev = (Button)findViewById(R.id.bprev);
+        segmentedGroup = (SegmentedGroup) findViewById(R.id.segmentedGroup);
+        rb_all = (RadioButton) segmentedGroup.findViewById(R.id.buttonall);
+        rb_a = (RadioButton) segmentedGroup.findViewById(R.id.buttona);
+        rb_una = (RadioButton) segmentedGroup.findViewById(R.id.buttonun);
 
         btest = (Button) findViewById(R.id.btest);
 
@@ -51,11 +61,11 @@ public class Activity_root extends AppCompatActivity implements View.OnClickList
 
         localStore = new LocalStore(this);
         req = new RestClientRequest();
+
         if(localStore.getLoggedInUser() < 0){
             Log.d("JJK", "getLoggedIn id: "+Integer.toString(localStore.getLoggedInUser()));
             startActivity(new Intent(Activity_root.this, Activity_login.class));
         }
-
     }
 
     @Override
@@ -63,20 +73,23 @@ public class Activity_root extends AppCompatActivity implements View.OnClickList
         super.onStart();
         if(((AppDelegate) getApplication()).Q.size() == 0){
             try {
+                adapter = new ViewPagerAdapter(getSupportFragmentManager());
                 req.OnSetupRequest( localStore.getLoggedInUser(), Activity_root.this);
-                Log.d("JJK","Counts of Q/unanswered/answerd: " + Integer.toString(((AppDelegate) getApplication()).Q.size())+
-                        "/"+Integer.toString(((AppDelegate) getApplication()).unanswered.size())+"/"+
-                        Integer.toString(((AppDelegate) getApplication()).answered.size()));
 
-                adapter = new ViewPagerAdapter(getSupportFragmentManager(), ((AppDelegate) getApplication()).answered, ((AppDelegate) getApplication()).unanswered, ((AppDelegate) getApplication()).Q.values());
-                mViewPager.setOffscreenPageLimit(2);
+                //adapter = new ViewPagerAdapter(getSupportFragmentManager(), ((AppDelegate) getApplication()).answered, ((AppDelegate) getApplication()).unanswered, ((AppDelegate) getApplication()).Q.values());
+                mViewPager.setOffscreenPageLimit(1);
                 mViewPager.setAdapter(adapter);
 
-
+                rb_all.setChecked(true);
+                segmentedGroup.setOnCheckedChangeListener(this);
+                //rb_all.setChecked(true);
             } catch (JSONException e) {
                 e.printStackTrace();
                 failedConnectionAlert();
             }
+        }else{
+            //rb_all.setChecked(true);
+
         }
     }
 
@@ -95,21 +108,37 @@ public class Activity_root extends AppCompatActivity implements View.OnClickList
         builder1.setCancelable(true);
         AlertDialog alert11 = builder1.create();
         alert11.show();
+    }
 
+    @Override
+    public void onCheckedChanged(RadioGroup group, int checkedId) {
+        //Log.d("JJK","WHAT THE EFF " + Integer.toString(checkedId) );
+        //Log.d("JJK", "all/una/a " + Integer.toString(rb_all.getId())+"/" + Integer.toString(rb_una.getId())+"/" + Integer.toString(rb_a.getId()) );
+            if(checkedId == rb_all.getId()){
+                flag = 0;
+                adapter.segmentFlag(0);
+                adapter.notifyDataSetChanged();
+                Log.d("JJK","onCheckedChanged()-----> seg0 " + Integer.toString(curr_q));
+                mViewPager.setCurrentItem(curr_q);
+            }else if(checkedId == rb_una.getId()){
+                flag = 1;
+                adapter.segmentFlag(1);
+                adapter.notifyDataSetChanged();
+                Log.d("JJK","onCheckedChanged()-----> seg1 " + Integer.toString(adapter.getFlagIndex(curr_una)));
+                mViewPager.setCurrentItem( adapter.getFlagIndex(curr_una));
+            }else if(checkedId == rb_a.getId()){
+                flag = 2;
+                adapter.segmentFlag(2);
+                adapter.notifyDataSetChanged();
+                Log.d("JJK","onCheckedChanged()-----> seg2 " + Integer.toString(adapter.getFlagIndex(curr_a)));
+                mViewPager.setCurrentItem(adapter.getFlagIndex(curr_a));
+        }
     }
 
     @Override
     public void onClick(View v) {
         if(v == bprofile){
-            /*
-            Log.d("JJK","wutface");
-            Log.d("JJK","Counts of Q/unanswered/answerd: " + Integer.toString(((AppDelegate) getApplication()).Q.size())+
-                    "/"+Integer.toString(((AppDelegate) getApplication()).unanswered.size())+"/"+
-                    Integer.toString(((AppDelegate) getApplication()).answered.size()) );
-            */
-
             startActivity(new Intent(Activity_root.this, Activity_profile.class));
-
         }else if(v == bsetting){
             startActivity(new Intent(Activity_root.this, Activity_setting.class));
         }else if(v == btest){
@@ -118,38 +147,19 @@ public class Activity_root extends AppCompatActivity implements View.OnClickList
                     "/"+Integer.toString(((AppDelegate) getApplication()).unanswered.size())+"/"+
                     Integer.toString(((AppDelegate) getApplication()).answered.size()) );
             adapter.printData();
-
         }else if(v == bnext){
             if(flag == 0){
                 if(curr_q+1 < adapter.qs.size()) {
-                    FragmentLifeCycle fragmentToHide = (FragmentLifeCycle) adapter.getItem(curr_q);
-                    fragmentToHide.onPauseFragment();
-
-                    FragmentLifeCycle fragmentToShow = (FragmentLifeCycle) adapter.getItem(curr_q+1);
-                    fragmentToShow.onResumeFragment();
-
                     curr_q++;
                     mViewPager.setCurrentItem(curr_q);
                 }
             }else if(flag == 1){
                 if(curr_una+1 < adapter.unanswered.size()) {
-                    FragmentLifeCycle fragmentToHide = (FragmentLifeCycle) adapter.getItem(curr_una);
-                    fragmentToHide.onPauseFragment();
-
-                    FragmentLifeCycle fragmentToShow = (FragmentLifeCycle) adapter.getItem(curr_una+1);
-                    fragmentToShow.onResumeFragment();
-
                     curr_una++;
                     mViewPager.setCurrentItem(curr_una);
                 }
             }else{
                 if(curr_a+1 < adapter.answered.size()) {
-                    FragmentLifeCycle fragmentToHide = (FragmentLifeCycle) adapter.getItem(curr_a);
-                    fragmentToHide.onPauseFragment();
-
-                    FragmentLifeCycle fragmentToShow = (FragmentLifeCycle) adapter.getItem(curr_a+1);
-                    fragmentToShow.onResumeFragment();
-                    mViewPager.setCurrentItem(curr_a);
                     curr_a++;
                     mViewPager.setCurrentItem(curr_a);
                 }
@@ -157,34 +167,16 @@ public class Activity_root extends AppCompatActivity implements View.OnClickList
         }else if(v == bprev){
             if(flag == 0){
                 if(curr_q-1 >= 0){
-                    FragmentLifeCycle fragmentToHide = (FragmentLifeCycle) adapter.getItem(curr_q);
-                    fragmentToHide.onPauseFragment();
-
-                    FragmentLifeCycle fragmentToShow = (FragmentLifeCycle) adapter.getItem(curr_q-1);
-                    fragmentToShow.onResumeFragment();
-
                     curr_q--;
                     mViewPager.setCurrentItem(curr_q);
                 }
             }else if(flag == 1){
                 if(curr_una-1 >= 0) {
-                    FragmentLifeCycle fragmentToHide = (FragmentLifeCycle) adapter.getItem(curr_una);
-                    fragmentToHide.onPauseFragment();
-
-                    FragmentLifeCycle fragmentToShow = (FragmentLifeCycle) adapter.getItem(curr_una-1);
-                    fragmentToShow.onResumeFragment();
-
                     curr_una--;
                     mViewPager.setCurrentItem(curr_una);
                 }
             }else{
                 if(curr_a-1 >= 0) {
-                    FragmentLifeCycle fragmentToHide = (FragmentLifeCycle) adapter.getItem(curr_a);
-                    fragmentToHide.onPauseFragment();
-
-                    FragmentLifeCycle fragmentToShow = (FragmentLifeCycle) adapter.getItem(curr_a-1);
-                    fragmentToShow.onResumeFragment();
-
                     curr_a--;
                     mViewPager.setCurrentItem(curr_a);
                 }
@@ -207,23 +199,22 @@ public class Activity_root extends AppCompatActivity implements View.OnClickList
 
                 curr_q = newPosition;
             }else if(flag == 1){
-                FragmentLifeCycle fragmentToHide = (FragmentLifeCycle)adapter.getItem(curr_una);
+                FragmentLifeCycle fragmentToHide = (FragmentLifeCycle)adapter.getItem( curr_una);
                 fragmentToHide.onPauseFragment();
 
-                FragmentLifeCycle fragmentToShow = (FragmentLifeCycle)adapter.getItem(newPosition);
+                FragmentLifeCycle fragmentToShow = (FragmentLifeCycle)adapter.getItem( newPosition);
                 fragmentToShow.onResumeFragment();
 
                 curr_una = newPosition;
             }else{
-                FragmentLifeCycle fragmentToHide = (FragmentLifeCycle)adapter.getItem(curr_a);
+                FragmentLifeCycle fragmentToHide = (FragmentLifeCycle)adapter.getItem( curr_a);
                 fragmentToHide.onPauseFragment();
 
-                FragmentLifeCycle fragmentToShow = (FragmentLifeCycle)adapter.getItem(newPosition);
+                FragmentLifeCycle fragmentToShow = (FragmentLifeCycle)adapter.getItem( newPosition);
                 fragmentToShow.onResumeFragment();
 
                 curr_a = newPosition;
             }
-
         }
 
         @Override
@@ -235,7 +226,12 @@ public class Activity_root extends AppCompatActivity implements View.OnClickList
     public void refreshFrags(){
         this.adapter.refresh();
         this.adapter.notifyDataSetChanged();
+    }
 
+    public void refreshTabs(){
+        this.rb_a.setChecked(false);
+        this.rb_una.setChecked(false);
+        this.rb_all.setChecked(false);
     }
 
 }

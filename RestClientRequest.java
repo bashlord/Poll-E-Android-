@@ -127,20 +127,24 @@ public class RestClientRequest {
                                 ((AppDelegate) activity.getApplication()).unanswered.add(qid);
                             }
 
-                            ((AppDelegate) activity.getApplication()).Q.put(i, tpoll);
+                            ((AppDelegate) activity.getApplication()).Q.put(tpoll.id, tpoll);
+                            ((AppDelegate) activity.getApplication()).all.add(tpoll.id);
+
                         }
 
                         Log.d("JJK","Counts of Q/unanswered/answerd: " + Integer.toString(((AppDelegate) activity.getApplication()).Q.size())+
                                 "/"+Integer.toString(((AppDelegate) activity.getApplication()).unanswered.size())+"/"+
                                 Integer.toString(((AppDelegate) activity.getApplication()).answered.size()));
-                         ((Activity_root) activity).adapter.qs.clear();
                         ((Activity_root) activity).adapter.qs.clear();
+                        ((Activity_root) activity).adapter.q.clear();
+
                         ((Activity_root) activity).adapter.answered.clear();
                         ((Activity_root) activity).adapter.unanswered.clear();
 
-                        ((Activity_root) activity).adapter.qs.putAll(((AppDelegate) activity.getApplication()).Q );
+                        ((Activity_root) activity).adapter.qs.putAll( ((AppDelegate) activity.getApplication()).Q );
                         ((Activity_root) activity).adapter.answered.addAll(( (AppDelegate) activity.getApplication()).answered);
                         ((Activity_root) activity).adapter.unanswered.addAll(( (AppDelegate) activity.getApplication()).unanswered);
+                        ((Activity_root) activity).adapter.q.addAll(  ((AppDelegate) activity.getApplication()).all );
 
                         ((Activity_root) activity).adapter.refresh();
                         ((Activity_root) activity).adapter.notifyDataSetChanged();

@@ -16,6 +16,7 @@ import java.util.Map;
 public class AppDelegate extends Application {
     LocalStore localStore;
     public Map<Integer, Poll> Q = new HashMap<Integer, Poll>();
+    public ArrayList all = new ArrayList();
     public ArrayList answered = new ArrayList();
     public ArrayList unanswered = new ArrayList();
 

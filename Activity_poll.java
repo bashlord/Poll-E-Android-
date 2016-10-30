@@ -28,11 +28,25 @@ public class Activity_poll extends Fragment implements FragmentLifeCycle {
     RestClientRequest req;
     LocalStore localStore;
 
+    static Activity_poll init(int qid, int resp,String q) {
+        Activity_poll apoll = new  Activity_poll();
+        // Supply val input as an argument.
+        Bundle args = new Bundle();
+        args.putInt("qid", qid);
+        args.putInt("resp", resp);
+        args.putString("q", q);
+        apoll.setArguments(args);
+        return apoll;
+    }
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        if(getArguments() != null){
+            this.poll = new Poll(getArguments().getString("q"), getArguments().getInt("qid"), getArguments().getInt("resp"));
+        }else {
 
-
+        }
     }
 
     @Override
@@ -80,24 +94,28 @@ public class Activity_poll extends Fragment implements FragmentLifeCycle {
     }
 
     private void displayUserDetails() {
-        this.tv_poll.setText(poll.q);
-        if(poll.resp != -1){
-            rl_poll.setBackgroundColor(getResources().getColor(R.color.answeredgrey));
-        }else{
-            rl_poll.setBackgroundColor(Color.WHITE);
+        if(poll != null && poll.q != null) {
+            this.tv_poll.setText(poll.q);
+            if(poll.resp != -1){
+                rl_poll.setBackgroundColor(getResources().getColor(R.color.answeredgrey));
+            }else{
+                rl_poll.setBackgroundColor(Color.WHITE);
+            }
+        }else {
+            this.tv_poll.setText("Currently NOTHING HERE GO AWAY JUST LEAVE ME ALONE :((((");
         }
     }
 
     @Override
     public void onPauseFragment() {
-
+        if(poll != null && poll.q != null)
+            Log.d("JJK", "PAUSED Poll id: " + Integer.toString(this.poll.id) + "  response: " + Integer.toString(this.poll.resp) );
     }
 
     @Override
     public void onResumeFragment() {
-        Log.d("JJK", "Current Poll id: " + Integer.toString(this.poll.id) + "  response: " + Integer.toString(this.poll.resp) );
-
-
+        if(poll != null && poll.q != null)
+            Log.d("JJK", "RESUMED Poll id: " + Integer.toString(this.poll.id) + "  response: " + Integer.toString(this.poll.resp) );
     }
 
 }

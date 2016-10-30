@@ -20,7 +20,7 @@ import java.util.Map;
  */
 public class ViewPagerAdapter extends FragmentStatePagerAdapter {
     public List<Fragment> fragments;
-    ArrayList<Integer> answered, unanswered;
+    ArrayList<Integer> answered, unanswered,q;
     //ArrayList<Poll> qs;
     public Map<Integer, Poll> qs;
 
@@ -35,6 +35,7 @@ public class ViewPagerAdapter extends FragmentStatePagerAdapter {
         super(fm);
         this.unanswered = new ArrayList();
         this.answered = new ArrayList();
+        this.q = new ArrayList<>();
         this.unanswered.addAll(unans);
         this.answered.addAll(ans);
         this.fragments = new ArrayList<Fragment>();
@@ -60,6 +61,7 @@ public class ViewPagerAdapter extends FragmentStatePagerAdapter {
         super(fm);
         this.unanswered = new ArrayList();
         this.answered = new ArrayList();
+        this.q = new ArrayList<>();
         poll1 = new Activity_poll();
         poll2 = new Activity_poll();
         poll3 = new Activity_poll();
@@ -80,19 +82,38 @@ public class ViewPagerAdapter extends FragmentStatePagerAdapter {
     @Override
     public Fragment getItem(int position) {
         Log.d("JJK", "ViewPagerAdapter FLAG: " + Integer.toString(this.flag) + " for INDEX " + Integer.toString(position));
-
+        Poll p;
         if(this.flag == 0){
             Activity_poll poll = new Activity_poll();
-            poll.poll = this.qs.get(position);
-            return poll;
+            p = this.qs.get( this.q.get(position));
+            return Activity_poll.init(p.id, p.resp, p.q );
         }else if(this.flag ==1){
             Activity_poll poll = new Activity_poll();
-            poll.poll = this.qs.get( this.unanswered.get(position));
-            return poll;
+            p = this.qs.get( this.unanswered.get(position));
+            if(this.qs.containsKey(this.unanswered.get(position))){
+                Log.d("JJK", "  qs HAS OBJECT FOR KEY ind/pos " + str(this.unanswered.get(position))+"/"+ str(position));
+            }else{
+                Log.d("JJK", "  qs DOES NOT HAVE OBJECT FOR KEY ind/pos " + str(this.unanswered.get(position))+"/"+ str(position));
+
+                for(Poll pp : this.qs.values()){
+                    Log.d("JJK", str(pp.id) + "/" + str(pp.resp) + "/" + pp.q);
+                }
+                for(int in:this.qs.keySet()){
+                    Log.d("JJK", str(in));
+                }
+
+            }
+            if(p != null){
+                Log.d("JJK", "    getItem id/resp/q" + Integer.toString(p.id) + "/" + Integer.toString(p.resp)+ "/" + p.q);
+            }else{
+                Log.d("JJK", "   WHY IS THIS FAILING ON " + Integer.toString(this.unanswered.get(position)) + "/" + Integer.toString(position) );
+                Log.d("JJK", Integer.toString(this.qs.size()));
+            }
+            return Activity_poll.init(p.id, p.resp, p.q );
         }else{
             Activity_poll poll = new Activity_poll();
-            poll.poll = this.qs.get( this.answered.get(position));
-            return poll;
+            p = this.qs.get( this.answered.get(position));
+            return Activity_poll.init(p.id, p.resp, p.q );
         }
     }
 
@@ -147,5 +168,9 @@ public class ViewPagerAdapter extends FragmentStatePagerAdapter {
         this.unacount = this.unanswered.size();
         this.unaindex = this.aindex = this.qindex = 0;
         this.currfragid = 0;
+    }
+
+    public String str(int i){
+        return Integer.toString(i);
     }
 }

@@ -22,7 +22,6 @@ public class Activity_root extends AppCompatActivity implements View.OnClickList
     LocalStore localStore;
     RestClientRequest req;
     Button bprofile,bnext,bprev, bsetting;
-    ViewAnimator viewAnimator;
     ViewPager mViewPager;
     ViewPagerAdapter adapter;
     Button btest;
@@ -36,9 +35,8 @@ public class Activity_root extends AppCompatActivity implements View.OnClickList
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_root);
 
-        //mViewPager = new ViewPager(this);
+        setContentView(R.layout.activity_root);
         mViewPager = (ViewPager) findViewById(R.id.vp_pager);
         mViewPager.addOnPageChangeListener(pageChangeListener);
 
@@ -49,15 +47,15 @@ public class Activity_root extends AppCompatActivity implements View.OnClickList
         rb_all = (RadioButton) segmentedGroup.findViewById(R.id.buttonall);
         rb_a = (RadioButton) segmentedGroup.findViewById(R.id.buttona);
         rb_una = (RadioButton) segmentedGroup.findViewById(R.id.buttonun);
-
-        btest = (Button) findViewById(R.id.btest);
-
         bprofile = (Button) findViewById(R.id.bProfile);
         bprofile.setOnClickListener(this);
         bsetting.setOnClickListener(this);
-        btest.setOnClickListener(this);
         bnext.setOnClickListener(this);
         bprev.setOnClickListener(this);
+
+        //just a button to console log data
+        btest = (Button) findViewById(R.id.btest);
+        btest.setOnClickListener(this);
 
         localStore = new LocalStore(this);
         req = new RestClientRequest();
@@ -79,7 +77,6 @@ public class Activity_root extends AppCompatActivity implements View.OnClickList
                 //adapter = new ViewPagerAdapter(getSupportFragmentManager(), ((AppDelegate) getApplication()).answered, ((AppDelegate) getApplication()).unanswered, ((AppDelegate) getApplication()).Q.values());
                 mViewPager.setOffscreenPageLimit(1);
                 mViewPager.setAdapter(adapter);
-
                 rb_all.setChecked(true);
                 segmentedGroup.setOnCheckedChangeListener(this);
                 //rb_all.setChecked(true);
@@ -96,7 +93,6 @@ public class Activity_root extends AppCompatActivity implements View.OnClickList
     @Override
     protected void onResume() {
         super.onResume();
-
         if(localStore.getLoggedInUser() == -1){
             startActivity(new Intent(Activity_root.this, Activity_login.class));
         }
@@ -112,26 +108,24 @@ public class Activity_root extends AppCompatActivity implements View.OnClickList
 
     @Override
     public void onCheckedChanged(RadioGroup group, int checkedId) {
-        //Log.d("JJK","WHAT THE EFF " + Integer.toString(checkedId) );
-        //Log.d("JJK", "all/una/a " + Integer.toString(rb_all.getId())+"/" + Integer.toString(rb_una.getId())+"/" + Integer.toString(rb_a.getId()) );
-            if(checkedId == rb_all.getId()){
-                flag = 0;
-                adapter.segmentFlag(0);
-                adapter.notifyDataSetChanged();
-                Log.d("JJK","onCheckedChanged()-----> seg0 " + Integer.toString(curr_q));
-                mViewPager.setCurrentItem(curr_q);
-            }else if(checkedId == rb_una.getId()){
-                flag = 1;
-                adapter.segmentFlag(1);
-                adapter.notifyDataSetChanged();
-                Log.d("JJK","onCheckedChanged()-----> seg1 " + Integer.toString(adapter.getFlagIndex(curr_una)));
-                mViewPager.setCurrentItem( adapter.getFlagIndex(curr_una));
-            }else if(checkedId == rb_a.getId()){
-                flag = 2;
-                adapter.segmentFlag(2);
-                adapter.notifyDataSetChanged();
-                Log.d("JJK","onCheckedChanged()-----> seg2 " + Integer.toString(adapter.getFlagIndex(curr_a)));
-                mViewPager.setCurrentItem(adapter.getFlagIndex(curr_a));
+        if(checkedId == rb_all.getId()){
+            flag = 0;
+            adapter.segmentFlag(0);
+            adapter.notifyDataSetChanged();
+            Log.d("JJK","onCheckedChanged()-----> seg0 " + Integer.toString(curr_q));
+            mViewPager.setCurrentItem(curr_q);
+        }else if(checkedId == rb_una.getId()){
+            flag = 1;
+            adapter.segmentFlag(1);
+            adapter.notifyDataSetChanged();
+            Log.d("JJK","onCheckedChanged()-----> seg1 " + Integer.toString(adapter.getFlagIndex(curr_una)));
+            mViewPager.setCurrentItem( curr_una);
+        }else if(checkedId == rb_a.getId()){
+            flag = 2;
+            adapter.segmentFlag(2);
+            adapter.notifyDataSetChanged();
+            Log.d("JJK","onCheckedChanged()-----> seg2 " + Integer.toString(adapter.getFlagIndex(curr_a)));
+            mViewPager.setCurrentItem(curr_a);
         }
     }
 
